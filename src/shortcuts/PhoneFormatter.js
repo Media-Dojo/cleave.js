@@ -44,11 +44,16 @@ PhoneFormatter.prototype = {
             }
         }
 
+		// [kestub]: We want to format it as (716) 123-4567,
+		// but cleave.js doesn't want to.
+		// Commenting these lines out is a quick fix for us to 
+		// get the format we want.
+		
         // strip ()
         // e.g. US: 7161234567 returns (716) 123-4567
-        result = result.replace(/[()]/g, '');
+        //result = result.replace(/[()]/g, '');
         // replace library delimiter with user customized delimiter
-        result = result.replace(/[\s-]/g, owner.delimiter);
+        //result = result.replace(/[\s-]/g, owner.delimiter);
 
         return result;
     }

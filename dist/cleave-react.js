@@ -52,7 +52,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -98,13 +98,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 
 	    getInitialState: function getInitialState() {
-	        var owner = this;
-	        var _owner$props = owner.props;
-	        var value = _owner$props.value;
-	        var options = _owner$props.options;
-	        var onKeyDown = _owner$props.onKeyDown;
-	        var onChange = _owner$props.onChange;
-	        var onInit = _owner$props.onInit;
+	        var owner = this,
+	            _owner$props = owner.props,
+	            value = _owner$props.value,
+	            options = _owner$props.options,
+	            onKeyDown = _owner$props.onKeyDown,
+	            onChange = _owner$props.onChange,
+	            onInit = _owner$props.onInit;
 
 
 	        owner.registeredEvents = {
@@ -363,16 +363,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 
 	    render: function render() {
-	        var owner = this;
-	        var _owner$props2 = owner.props;
-	        var value = _owner$props2.value;
-	        var options = _owner$props2.options;
-	        var onKeyDown = _owner$props2.onKeyDown;
-	        var onChange = _owner$props2.onChange;
-	        var onInit = _owner$props2.onInit;
-	        var htmlRef = _owner$props2.htmlRef;
+	        var owner = this,
+	            _owner$props2 = owner.props,
+	            value = _owner$props2.value,
+	            options = _owner$props2.options,
+	            onKeyDown = _owner$props2.onKeyDown,
+	            onChange = _owner$props2.onChange,
+	            onInit = _owner$props2.onInit,
+	            htmlRef = _owner$props2.htmlRef,
+	            propsToTransfer = _objectWithoutProperties(_owner$props2, ['value', 'options', 'onKeyDown', 'onChange', 'onInit', 'htmlRef']);
 
-	        var propsToTransfer = _objectWithoutProperties(_owner$props2, ['value', 'options', 'onKeyDown', 'onChange', 'onInit', 'htmlRef']);
 
 	        return React.createElement('input', _extends({
 	            type: 'text',
@@ -388,15 +388,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = Cleave;
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/**
 	 * Copyright 2013-present, Facebook, Inc.
@@ -423,9 +423,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	);
 
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-present, Facebook, Inc.
@@ -1154,12 +1154,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	// shim for using process in browser
-
 	var process = module.exports = {};
 
 	// cached from whatever global is present so that test runners that stub it
@@ -1170,22 +1169,84 @@ return /******/ (function(modules) { // webpackBootstrap
 	var cachedSetTimeout;
 	var cachedClearTimeout;
 
+	function defaultSetTimout() {
+	    throw new Error('setTimeout has not been defined');
+	}
+	function defaultClearTimeout () {
+	    throw new Error('clearTimeout has not been defined');
+	}
 	(function () {
-	  try {
-	    cachedSetTimeout = setTimeout;
-	  } catch (e) {
-	    cachedSetTimeout = function () {
-	      throw new Error('setTimeout is not defined');
+	    try {
+	        if (typeof setTimeout === 'function') {
+	            cachedSetTimeout = setTimeout;
+	        } else {
+	            cachedSetTimeout = defaultSetTimout;
+	        }
+	    } catch (e) {
+	        cachedSetTimeout = defaultSetTimout;
 	    }
-	  }
-	  try {
-	    cachedClearTimeout = clearTimeout;
-	  } catch (e) {
-	    cachedClearTimeout = function () {
-	      throw new Error('clearTimeout is not defined');
+	    try {
+	        if (typeof clearTimeout === 'function') {
+	            cachedClearTimeout = clearTimeout;
+	        } else {
+	            cachedClearTimeout = defaultClearTimeout;
+	        }
+	    } catch (e) {
+	        cachedClearTimeout = defaultClearTimeout;
 	    }
-	  }
 	} ())
+	function runTimeout(fun) {
+	    if (cachedSetTimeout === setTimeout) {
+	        //normal enviroments in sane situations
+	        return setTimeout(fun, 0);
+	    }
+	    // if setTimeout wasn't available but was latter defined
+	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+	        cachedSetTimeout = setTimeout;
+	        return setTimeout(fun, 0);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedSetTimeout(fun, 0);
+	    } catch(e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+	            return cachedSetTimeout.call(null, fun, 0);
+	        } catch(e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+	            return cachedSetTimeout.call(this, fun, 0);
+	        }
+	    }
+
+
+	}
+	function runClearTimeout(marker) {
+	    if (cachedClearTimeout === clearTimeout) {
+	        //normal enviroments in sane situations
+	        return clearTimeout(marker);
+	    }
+	    // if clearTimeout wasn't available but was latter defined
+	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+	        cachedClearTimeout = clearTimeout;
+	        return clearTimeout(marker);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedClearTimeout(marker);
+	    } catch (e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+	            return cachedClearTimeout.call(null, marker);
+	        } catch (e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+	            return cachedClearTimeout.call(this, marker);
+	        }
+	    }
+
+
+
+	}
 	var queue = [];
 	var draining = false;
 	var currentQueue;
@@ -1210,7 +1271,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (draining) {
 	        return;
 	    }
-	    var timeout = cachedSetTimeout.call(null, cleanUpNextTick);
+	    var timeout = runTimeout(cleanUpNextTick);
 	    draining = true;
 
 	    var len = queue.length;
@@ -1227,7 +1288,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    currentQueue = null;
 	    draining = false;
-	    cachedClearTimeout.call(null, timeout);
+	    runClearTimeout(timeout);
 	}
 
 	process.nextTick = function (fun) {
@@ -1239,7 +1300,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    queue.push(new Item(fun, args));
 	    if (queue.length === 1 && !draining) {
-	        cachedSetTimeout.call(null, drainQueue, 0);
+	        runTimeout(drainQueue);
 	    }
 	};
 
@@ -1267,6 +1328,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	process.removeListener = noop;
 	process.removeAllListeners = noop;
 	process.emit = noop;
+	process.prependListener = noop;
+	process.prependOnceListener = noop;
+
+	process.listeners = function (name) { return [] }
 
 	process.binding = function (name) {
 	    throw new Error('process.binding is not supported');
@@ -1279,9 +1344,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	process.umask = function() { return 0; };
 
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/*
 	object-assign
@@ -1375,9 +1440,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright (c) 2013-present, Facebook, Inc.
@@ -1400,9 +1465,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = emptyObject;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright (c) 2013-present, Facebook, Inc.
@@ -1461,9 +1526,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = invariant;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2014-2015, Facebook, Inc.
@@ -1533,9 +1598,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = warning;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 
@@ -1576,9 +1641,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = emptyFunction;
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -1611,28 +1676,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	            partDecimal = '';
 
 	        // strip alphabet letters
-	        value = value.replace(/[A-Za-z]/g, '')
+	        value = value.replace(/[A-Za-z]/g, ''
 	        // replace the first decimal mark with reserved placeholder
-	        .replace(owner.numeralDecimalMark, 'M')
+	        ).replace(owner.numeralDecimalMark, 'M'
 
 	        // strip non numeric letters except minus and "M"
 	        // this is to ensure prefix has been stripped
-	        .replace(/[^\dM-]/g, '')
+	        ).replace(/[^\dM-]/g, ''
 
 	        // replace the leading minus with reserved placeholder
-	        .replace(/^\-/, 'N')
+	        ).replace(/^\-/, 'N'
 
 	        // strip the other minus sign (if present)
-	        .replace(/\-/g, '')
+	        ).replace(/\-/g, ''
 
 	        // replace the minus sign (if present)
-	        .replace('N', owner.numeralPositiveOnly ? '' : '-')
+	        ).replace('N', owner.numeralPositiveOnly ? '' : '-'
 
 	        // replace decimal mark
-	        .replace('M', owner.numeralDecimalMark)
+	        ).replace('M', owner.numeralDecimalMark
 
 	        // strip any leading zeros
-	        .replace(/^(-)?0+(?=\d)/, '$1');
+	        ).replace(/^(-)?0+(?=\d)/, '$1');
 
 	        partInteger = value;
 
@@ -1663,9 +1728,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = NumeralFormatter;
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -1742,9 +1807,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = DateFormatter;
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -1796,9 +1861,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        // strip ()
 	        // e.g. US: 7161234567 returns (716) 123-4567
-	        result = result.replace(/[()]/g, '');
+	        //result = result.replace(/[()]/g, '');
 	        // replace library delimiter with user customized delimiter
-	        result = result.replace(/[\s-]/g, owner.delimiter);
+	        //result = result.replace(/[\s-]/g, owner.delimiter);
 
 	        return result;
 	    }
@@ -1806,9 +1871,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = PhoneFormatter;
 
-/***/ },
+/***/ }),
 /* 13 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -1931,9 +1996,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = CreditCardDetector;
 
-/***/ },
+/***/ }),
 /* 14 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -2060,9 +2125,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = Util;
 
-/***/ },
+/***/ }),
 /* 15 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
 
@@ -2072,72 +2137,72 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Separate this, so react module can share the usage
 	 */
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var DefaultProperties = {
-	    // Maybe change to object-assign
-	    // for now just keep it as simple
-	    assign: function assign(target, opts) {
-	        target = target || {};
-	        opts = opts || {};
+	        // Maybe change to object-assign
+	        // for now just keep it as simple
+	        assign: function assign(target, opts) {
+	                target = target || {};
+	                opts = opts || {};
 
-	        // credit card
-	        target.creditCard = !!opts.creditCard;
-	        target.creditCardStrictMode = !!opts.creditCardStrictMode;
-	        target.creditCardType = '';
-	        target.onCreditCardTypeChanged = opts.onCreditCardTypeChanged || function () {};
+	                // credit card
+	                target.creditCard = !!opts.creditCard;
+	                target.creditCardStrictMode = !!opts.creditCardStrictMode;
+	                target.creditCardType = '';
+	                target.onCreditCardTypeChanged = opts.onCreditCardTypeChanged || function () {};
 
-	        // phone
-	        target.phone = !!opts.phone;
-	        target.phoneRegionCode = opts.phoneRegionCode || 'AU';
-	        target.phoneFormatter = {};
+	                // phone
+	                target.phone = !!opts.phone;
+	                target.phoneRegionCode = opts.phoneRegionCode || 'AU';
+	                target.phoneFormatter = {};
 
-	        // date
-	        target.date = !!opts.date;
-	        target.datePattern = opts.datePattern || ['d', 'm', 'Y'];
-	        target.dateFormatter = {};
+	                // date
+	                target.date = !!opts.date;
+	                target.datePattern = opts.datePattern || ['d', 'm', 'Y'];
+	                target.dateFormatter = {};
 
-	        // numeral
-	        target.numeral = !!opts.numeral;
-	        target.numeralDecimalScale = opts.numeralDecimalScale >= 0 ? opts.numeralDecimalScale : 2;
-	        target.numeralDecimalMark = opts.numeralDecimalMark || '.';
-	        target.numeralThousandsGroupStyle = opts.numeralThousandsGroupStyle || 'thousand';
-	        target.numeralPositiveOnly = !!opts.numeralPositiveOnly;
+	                // numeral
+	                target.numeral = !!opts.numeral;
+	                target.numeralDecimalScale = opts.numeralDecimalScale >= 0 ? opts.numeralDecimalScale : 2;
+	                target.numeralDecimalMark = opts.numeralDecimalMark || '.';
+	                target.numeralThousandsGroupStyle = opts.numeralThousandsGroupStyle || 'thousand';
+	                target.numeralPositiveOnly = !!opts.numeralPositiveOnly;
 
-	        // others
-	        target.numericOnly = target.creditCard || target.date || !!opts.numericOnly;
+	                // others
+	                target.numericOnly = target.creditCard || target.date || !!opts.numericOnly;
 
-	        target.uppercase = !!opts.uppercase;
-	        target.lowercase = !!opts.lowercase;
+	                target.uppercase = !!opts.uppercase;
+	                target.lowercase = !!opts.lowercase;
 
-	        target.prefix = target.creditCard || target.phone || target.date ? '' : opts.prefix || '';
-	        target.prefixLength = target.prefix.length;
-	        target.rawValueTrimPrefix = !!opts.rawValueTrimPrefix;
-	        target.copyDelimiter = !!opts.copyDelimiter;
+	                target.prefix = target.creditCard || target.phone || target.date ? '' : opts.prefix || '';
+	                target.prefixLength = target.prefix.length;
+	                target.rawValueTrimPrefix = !!opts.rawValueTrimPrefix;
+	                target.copyDelimiter = !!opts.copyDelimiter;
 
-	        target.initValue = opts.initValue === undefined ? '' : opts.initValue.toString();
+	                target.initValue = opts.initValue === undefined ? '' : opts.initValue.toString();
 
-	        target.delimiter = opts.delimiter || opts.delimiter === '' ? opts.delimiter : opts.date ? '/' : opts.numeral ? ',' : opts.phone ? ' ' : ' ';
-	        target.delimiters = opts.delimiters || [];
+	                target.delimiter = opts.delimiter || opts.delimiter === '' ? opts.delimiter : opts.date ? '/' : opts.numeral ? ',' : opts.phone ? ' ' : ' ';
+	                target.delimiters = opts.delimiters || [];
 
-	        target.blocks = opts.blocks || [];
-	        target.blocksLength = target.blocks.length;
+	                target.blocks = opts.blocks || [];
+	                target.blocksLength = target.blocks.length;
 
-	        target.root = (typeof global === 'undefined' ? 'undefined' : _typeof(global)) === 'object' && global ? global : window;
+	                target.root = (typeof global === 'undefined' ? 'undefined' : _typeof(global)) === 'object' && global ? global : window;
 
-	        target.maxLength = 0;
+	                target.maxLength = 0;
 
-	        target.backspace = false;
-	        target.result = '';
+	                target.backspace = false;
+	                target.result = '';
 
-	        return target;
-	    }
+	                return target;
+	        }
 	};
 
 	module.exports = DefaultProperties;
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
-/***/ }
+/***/ })
 /******/ ])
 });
 ;
